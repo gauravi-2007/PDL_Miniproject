@@ -1,0 +1,7 @@
+transaction_id,sender_id,receiver_id,device_id,ip_address,amount,is_fraud
+TXN001,User_A,User_B,Device_1,192.168.1.10,1500,0
+TXN002,User_C,User_D,Device_2,10.0.0.5,4500,0
+TXN003,User_A,User_E,Device_1,192.168.1.10,250,1
+TXN004,User_F,User_G,Device_3,172.16.0.4,12000,0
+TXN005,User_B,User_C,Device_1,192.168.1.10,300,1
+
