@@ -1,38 +1,78 @@
-import networkx as nx
+
 import pandas as pd
+import networkx as nx
 
 
-def load_and_build_graph(csv_file_path):
-  # Load a sample or chunk of the large dataset to keep it fast for your mini-project
-  # (Using nrows=1000 ensures it doesn't lag your local machine)
-  df = pd.read_csv(csv_file_path, nrows=1000)
+REQUIRED_COLUMNS = {
+    "transaction_id",
+    "sender_id",
+    "receiver_id",
+    "device_id",
+    "ip_address",
+    "amount",
+    "is_fraud",
+}
 
-  # Initialize an empty NetworkX Graph
-  G = nx.Graph()
 
-  # Add nodes and edges based on transactions
-  for _, row in df.iterrows():
-    sender = row["nameOrig"]
-    receiver = row["nameDest"]
-    amount = row["amount"]
-    is_fraud = row["isFraud"]
+def load_and_build_graph(csv_file_path="transactions.csv"):
+    df = pd.read_csv(csv_file_path)
 
-    # Transaction edge linking sender and receiver
-    G.add_edge(
-        sender,
-        receiver,
-        relation="transaction",
-        amount=amount,
-        is_fraud=is_fraud,
-    )
+    missing = REQUIRED_COLUMNS - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns: {sorted(missing)}")
 
-  print(
-      f"Kaggle Graph successfully built! Total nodes: {G.number_of_nodes()},"
-      f" Total edges: {G.number_of_edges()}"
-  )
-  return G, df
+    df = df.dropna(subset=["sender_id", "receiver_id"]).copy()
+
+    graph = nx.MultiDiGraph()
+
+    for _, row in df.iterrows():
+        sender = str(row["sender_id"])
+        receiver = str(row["receiver_id"])
+        transaction_id = str(row["transaction_id"])
+
+        graph.add_node(sender, node_type="account")
+        graph.add_node(receiver, node_type="account")
+
+        graph.add_edge(
+            sender,
+            receiver,
+            key=transaction_id,
+            relation="transaction",
+            transaction_id=transaction_id,
+            amount=float(row["amount"]),
+            is_fraud=int(row["is_fraud"]),
+        )
+
+        for column, relation in [
+            ("device_id", "uses_device"),
+            ("ip_address", "uses_ip"),
+        ]:
+            value = row[column]
+
+            if pd.notna(value) and str(value).strip():
+                related_node = f"{relation}:{value}"
+                graph.add_node(related_node, node_type=relation)
+                graph.add_edge(
+                    sender,
+                    related_node,
+                    relation=relation,
+                    transaction_id=transaction_id,
+                )
+
+    print("Transaction graph built successfully!")
+    print(f"Transactions loaded: {len(df)}")
+    print(f"Total nodes: {graph.number_of_nodes()}")
+    print(f"Total edges: {graph.number_of_edges()}")
+
+    return graph, df
+
 
 
 if __name__ == "__main__":
-  # Replace with the exact filename of the downloaded CSV from Kaggle
-  load_and_build_graph("PS_20174392719_1491204439457_log.csv")
+    from relationship_analysis import analyze_relationships
+
+    dataset_path = "data/processed/paysim_sample.csv"
+
+    graph, transactions = load_and_build_graph(dataset_path)
+
+    analyze_relationships(dataset_path)
