@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudLens | Transaction Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+</head>
+
+<body>
+    <header class="topbar">
+        <div>
+            <h1>FraudLens</h1>
+            <p>Fraud Transaction Relationship Detection</p>
+        </div>
+        <span class="status">● System Dashboard</span>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <div>
+                <h2>Transaction Overview</h2>
+                <p>Monitor suspicious transactions and account relationships.</p>
+            </div>
+
+            <button id="refreshBtn">Refresh Data</button>
+        </section>
+
+        <div id="message" class="message">Loading dashboard...</div>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <p>Total Transactions</p>
+                <h2 id="totalTransactions">0</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Fraud Transactions</p>
+                <h2 id="fraudTransactions">0</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Non-Fraud Transactions</p>
+                <h2 id="normalTransactions">0</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Total Transaction Amount</p>
+                <h2 id="totalAmount">0</h2>
+            </article>
+
+            <article class="stat-card">
+                <p>Unique Sender Accounts</p>
+                <h2 id="totalAccounts">0</h2>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>Upload Transaction Dataset</h2>
+            <p>Select a CSV file containing transaction records.</p>
+
+            <form id="uploadForm">
+                <input type="file" id="csvFile" accept=".csv" required>
+                <button type="submit">Upload CSV</button>
+            </form>
+        </section>
+
+        <section class="charts-grid">
+            <article class="panel">
+                <h2>Fraud vs Non-Fraud</h2>
+                <canvas id="fraudChart"></canvas>
+            </article>
+
+            <article class="panel">
+                <h2>Transaction Amount Distribution</h2>
+                <canvas id="amountChart"></canvas>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>Transaction Relationship Graph</h2>
+            <p>Explore connections between sender accounts, receivers, devices and IP addresses.</p>
+            <div id="relationshipGraph"></div>
+        </section>
+
+        <section class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Account Risk Analysis</h2>
+                    <p>Rule-based risk estimates for sender accounts.</p>
+                </div>
+                <a href="/api/export/risk" class="download-link">Export Risk CSV</a>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Transactions</th>
+                            <th>Total Amount</th>
+                            <th>Fraud Count</th>
+                            <th>Shared Device</th>
+                            <th>Shared IP</th>
+                            <th>Risk Score</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="riskTable">
+                        <tr>
+                            <td colspan="8">Loading risk analysis...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-heading">
+                <h2>Transaction Records</h2>
+                <a href="/api/export/transactions" class="download-link">
+                    Export Transactions CSV
+                </a>
+            </div>
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Search transaction, sender or receiver..."
+            >
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Sender</th>
+                            <th>Receiver</th>
+                            <th>Amount</th>
+                            <th>Fraud Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTable">
+                        <tr>
+                            <td colspan="5">Loading transactions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>FraudLens · Academic Mini Project · Risk scores are indicative, not definitive.</p>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+account,transactions,total_amount,fraud_count,shared_device,shared_ip,risk_score,risk_level
+User_A,2,1750.0,1,True,True,85,High
+User_B,1,300.0,1,True,True,85,High
+User_F,1,12000.0,0,False,False,0,Low
+User_C,1,4500.0,0,False,False,0,Low
